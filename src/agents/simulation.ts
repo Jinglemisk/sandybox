@@ -22,6 +22,32 @@ const IDLE_CHATS = [
   "The kitchen smells great.",
   "Time for a nap...",
   "What a lovely house!",
+  "The flowers outside look beautiful!",
+  "Should I check the mail?",
+  "I need a shower...",
+  "Who left the laptop open?",
+];
+
+// Books that agents can read
+export const BOOK_TITLES = [
+  "The Art of War",
+  "Pride and Prejudice",
+  "1984",
+  "The Great Gatsby",
+  "To Kill a Mockingbird",
+  "Dune",
+  "Brave New World",
+  "The Hitchhiker's Guide to the Galaxy",
+  "Sapiens: A Brief History",
+  "Thinking, Fast and Slow",
+  "The Design of Everyday Things",
+  "Zen and the Art of Motorcycle Maintenance",
+  "Meditations by Marcus Aurelius",
+  "The Little Prince",
+  "Cat's Cradle",
+  "Neuromancer",
+  "Foundation",
+  "The Catcher in the Rye",
 ];
 
 const ROOM_NAMES = ROOMS.map(r => r.name);
@@ -57,8 +83,8 @@ export class Simulation {
 
       if (timer <= 0 && agent.action === 'idle') {
         this.makeDecision(agent);
-        // Next decision in 5-15 seconds
-        timer = 5 + Math.random() * 10;
+        // Next decision in 2-6 seconds (much more active)
+        timer = 2 + Math.random() * 4;
       }
 
       this.decisionTimers.set(timerId, timer);
@@ -68,8 +94,8 @@ export class Simulation {
   private makeDecision(agent: Agent) {
     const roll = Math.random();
 
-    if (roll < 0.35) {
-      // Walk to a random room
+    if (roll < 0.4) {
+      // Walk to a random room (most common action - keeps things lively)
       const targetRoom = ROOM_NAMES[Math.floor(Math.random() * ROOM_NAMES.length)];
       agent.walkToRoom(targetRoom);
       this.stateManager.addActionEntry(
@@ -78,7 +104,24 @@ export class Simulation {
         'move',
         `walks to ${targetRoom}`
       );
-    } else if (roll < 0.55) {
+    } else if (roll < 0.52) {
+      // Read a book
+      const book = BOOK_TITLES[Math.floor(Math.random() * BOOK_TITLES.length)];
+      // Walk to a bookshelf or sit down first
+      const bookshelf = this.findFurnitureByName(agent, 'Bookshelf', 15);
+      if (bookshelf) {
+        agent.interactWith(bookshelf);
+      }
+      agent.say(`📖 Reading "${book}"`);
+      agent.doAction('using', 8 + Math.random() * 12);
+      this.stateManager.addChatMessage(agent.state.id, agent.state.name, `📖 Reading "${book}"`);
+      this.stateManager.addActionEntry(
+        agent.state.id,
+        agent.state.name,
+        'action',
+        `picks up "${book}" and starts reading`
+      );
+    } else if (roll < 0.7) {
       // Interact with nearby furniture
       const nearbyFurniture = this.findNearbyFurniture(agent, 6);
       if (nearbyFurniture.length > 0) {
@@ -91,18 +134,16 @@ export class Simulation {
           `uses the ${item.name}`
         );
       } else {
-        // Wander to random spot
         const pos = getRandomPositionInRoom(agent.state.room);
         if (pos) agent.walkTo(pos.x, pos.z);
       }
-    } else if (roll < 0.75) {
+    } else if (roll < 0.88) {
       // Chat
       const message = IDLE_CHATS[Math.floor(Math.random() * IDLE_CHATS.length)];
       agent.say(message);
       this.stateManager.addChatMessage(agent.state.id, agent.state.name, message);
     } else {
-      // Just idle for a bit
-      agent.doAction('idle', 3 + Math.random() * 5);
+      // Wander within current room (short movement, not pure idle)
       const pos = getRandomPositionInRoom(agent.state.room);
       if (pos) agent.walkTo(pos.x, pos.z);
     }
@@ -116,5 +157,16 @@ export class Simulation {
       const dz = item.interactionPoint.z - pos.z;
       return Math.sqrt(dx * dx + dz * dz) < maxDist;
     });
+  }
+
+  private findFurnitureByName(agent: Agent, name: string, maxDist: number): FurnitureItem | null {
+    const pos = agent.character.group.position;
+    const matches = this.furniture.filter(item => {
+      if (item.name !== name) return false;
+      const dx = item.interactionPoint.x - pos.x;
+      const dz = item.interactionPoint.z - pos.z;
+      return Math.sqrt(dx * dx + dz * dz) < maxDist;
+    });
+    return matches.length > 0 ? matches[Math.floor(Math.random() * matches.length)] : null;
   }
 }

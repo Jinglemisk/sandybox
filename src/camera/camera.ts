@@ -6,11 +6,11 @@ export class SimsCamera {
   private angle = Math.PI / 4; // Current horizontal angle
   private targetAngle = Math.PI / 4;
   private elevation = Math.PI / 6; // Vertical tilt
-  private distance = 18;
-  private targetDistance = 18;
-  private center = new THREE.Vector3(6.5, 0, -4);
-  private minDist = 8;
-  private maxDist = 30;
+  private distance = 24;
+  private targetDistance = 24;
+  private center = new THREE.Vector3(9, 0, -7);
+  private minDist = 10;
+  private maxDist = 40;
 
   constructor(aspect: number) {
     this.camera = new THREE.PerspectiveCamera(45, aspect, 0.1, 100);

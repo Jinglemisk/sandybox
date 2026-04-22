@@ -3,13 +3,13 @@ import type { RoomDef } from '../world/house';
 import { ROOMS } from '../world/house';
 
 // Simple grid-based navigation
-// The house spans x: 0-13, z: 0 to -10
+// The house spans x: 0-18, z: 0 to -14
 // Grid cells are 0.5 units
 
 const GRID_SIZE = 0.5;
 const GRID_MIN_X = -1;
-const GRID_MAX_X = 14;
-const GRID_MIN_Z = -11;
+const GRID_MAX_X = 19;
+const GRID_MIN_Z = -15;
 const GRID_MAX_Z = 1;
 
 const COLS = Math.ceil((GRID_MAX_X - GRID_MIN_X) / GRID_SIZE);
@@ -30,14 +30,21 @@ function initGrid() {
 }
 
 function isInsideHouse(x: number, z: number): boolean {
-  // Check if the point is inside any room with some wall margin
-  const margin = 0.3;
+  // Check if the point is inside any room with wall margin
+  // Use smaller margin on shared edges so doorways between rooms remain walkable
+  const outerMargin = 0.3;
   for (const room of ROOMS) {
+    // Check if each edge is shared with another room (interior) or exterior
+    const leftMargin = ROOMS.some(r => r !== room && Math.abs((r.x + r.width) - room.x) < 0.1) ? 0 : outerMargin;
+    const rightMargin = ROOMS.some(r => r !== room && Math.abs(r.x - (room.x + room.width)) < 0.1) ? 0 : outerMargin;
+    const frontMargin = ROOMS.some(r => r !== room && Math.abs((r.z - r.depth) - room.z) < 0.5) ? 0 : outerMargin;
+    const backMargin = ROOMS.some(r => r !== room && Math.abs(r.z - (room.z - room.depth)) < 0.5) ? 0 : outerMargin;
+
     if (
-      x >= room.x + margin &&
-      x <= room.x + room.width - margin &&
-      z <= room.z - margin &&
-      z >= room.z - room.depth + margin
+      x >= room.x + leftMargin &&
+      x <= room.x + room.width - rightMargin &&
+      z <= room.z - frontMargin &&
+      z >= room.z - room.depth + backMargin
     ) {
       return true;
     }

@@ -7,6 +7,7 @@ import { StateManager } from './state/stateManager';
 import { Simulation } from './agents/simulation';
 import { ActivityLog } from './ui/activityLog';
 import { SpeechBubbleManager } from './ui/speechBubbles';
+import { DebugPanel } from './ui/debugPanel';
 
 // ── Setup ──────────────────────────────────────────────
 
@@ -17,7 +18,7 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.type = THREE.PCFShadowMap;
 renderer.setClearColor(0x87ceeb); // Sky blue
 app.insertBefore(renderer.domElement, app.firstChild);
 
@@ -33,16 +34,16 @@ const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambientLight);
 
 const sunLight = new THREE.DirectionalLight(0xfff4e0, 1.2);
-sunLight.position.set(10, 15, 8);
+sunLight.position.set(15, 20, 10);
 sunLight.castShadow = true;
 sunLight.shadow.mapSize.width = 2048;
 sunLight.shadow.mapSize.height = 2048;
 sunLight.shadow.camera.near = 0.5;
-sunLight.shadow.camera.far = 50;
-sunLight.shadow.camera.left = -15;
-sunLight.shadow.camera.right = 15;
-sunLight.shadow.camera.top = 15;
-sunLight.shadow.camera.bottom = -15;
+sunLight.shadow.camera.far = 60;
+sunLight.shadow.camera.left = -20;
+sunLight.shadow.camera.right = 20;
+sunLight.shadow.camera.top = 20;
+sunLight.shadow.camera.bottom = -20;
 scene.add(sunLight);
 
 const fillLight = new THREE.DirectionalLight(0xa0c0ff, 0.3);
@@ -75,6 +76,7 @@ for (const agent of simulation.agents) {
 
 const activityLog = new ActivityLog();
 const speechBubbles = new SpeechBubbleManager(renderer.domElement, simsCamera);
+const _debugPanel = new DebugPanel(simulation, simsCamera, stateManager, furnitureItems);
 
 // Simulation speed
 let simSpeed = 1;
