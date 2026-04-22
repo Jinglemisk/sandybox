@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>sandybox</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 100%; height: 100%; overflow: hidden; background: #1a1a2e; font-family: 'Segoe UI', system-ui, sans-serif; }
+      #app { width: 100%; height: 100%; position: relative; }
+      canvas { display: block; }
+
+      /* Activity Log Panel */
+      #log-panel {
+        position: absolute;
+        bottom: 16px;
+        right: 16px;
+        width: 360px;
+        max-height: 320px;
+        background: rgba(10, 10, 30, 0.85);
+        border: 1px solid rgba(100, 140, 255, 0.3);
+        border-radius: 12px;
+        padding: 12px;
+        overflow-y: auto;
+        color: #c8d0e8;
+        font-size: 13px;
+        line-height: 1.5;
+        backdrop-filter: blur(8px);
+        scrollbar-width: thin;
+        scrollbar-color: rgba(100,140,255,0.3) transparent;
+      }
+      #log-panel h3 {
+        color: #8ba4ff;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-bottom: 8px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid rgba(100,140,255,0.2);
+      }
+      .log-entry {
+        padding: 4px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        animation: fadeIn 0.3s ease;
+      }
+      .log-entry .time { color: #5a6a8a; font-size: 11px; margin-right: 6px; }
+      .log-entry .agent-name { color: #7ecfff; font-weight: 600; }
+      .log-entry.chat .agent-name { color: #a8e6cf; }
+      .log-entry.action .agent-name { color: #ffd3a8; }
+      .log-entry.move .agent-name { color: #c4b5fd; }
+
+      @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+      /* Agent Info Tooltip */
+      #agent-tooltip {
+        position: absolute;
+        display: none;
+        background: rgba(10, 10, 30, 0.9);
+        border: 1px solid rgba(100, 140, 255, 0.4);
+        border-radius: 8px;
+        padding: 8px 12px;
+        color: #c8d0e8;
+        font-size: 12px;
+        pointer-events: none;
+        backdrop-filter: blur(8px);
+        z-index: 100;
+      }
+      #agent-tooltip .name { color: #7ecfff; font-weight: 700; font-size: 14px; }
+      #agent-tooltip .status { color: #a8e6cf; font-size: 11px; margin-top: 2px; }
+
+      /* Camera Controls */
+      #camera-controls {
+        position: absolute;
+        bottom: 16px;
+        left: 16px;
+        display: flex;
+        gap: 8px;
+      }
+      #camera-controls button {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 1px solid rgba(100, 140, 255, 0.3);
+        background: rgba(10, 10, 30, 0.85);
+        color: #8ba4ff;
+        font-size: 18px;
+        cursor: pointer;
+        backdrop-filter: blur(8px);
+        transition: all 0.2s;
+      }
+      #camera-controls button:hover {
+        background: rgba(60, 80, 160, 0.5);
+        border-color: rgba(100, 140, 255, 0.6);
+      }
+
+      /* Speed Controls */
+      #speed-controls {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+      #speed-controls button {
+        padding: 6px 12px;
+        border-radius: 6px;
+        border: 1px solid rgba(100, 140, 255, 0.3);
+        background: rgba(10, 10, 30, 0.85);
+        color: #8ba4ff;
+        font-size: 12px;
+        cursor: pointer;
+        backdrop-filter: blur(8px);
+        transition: all 0.2s;
+      }
+      #speed-controls button.active {
+        background: rgba(60, 80, 160, 0.6);
+        border-color: #8ba4ff;
+        color: #fff;
+      }
+
+      /* Room Labels */
+      .room-label {
+        position: absolute;
+        color: rgba(255,255,255,0.15);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        pointer-events: none;
+      }
+
+      /* Speech Bubbles */
+      .speech-bubble {
+        position: absolute;
+        background: rgba(255,255,255,0.95);
+        color: #222;
+        padding: 6px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        max-width: 180px;
+        pointer-events: none;
+        z-index: 50;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        animation: bubbleIn 0.3s ease;
+      }
+      .speech-bubble::after {
+        content: '';
+        position: absolute;
+        bottom: -6px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0; height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 6px solid rgba(255,255,255,0.95);
+      }
+      @keyframes bubbleIn { from { opacity: 0; transform: scale(0.8) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div id="camera-controls">
+        <button id="rotate-left" title="Rotate Left">&#8634;</button>
+        <button id="rotate-right" title="Rotate Right">&#8635;</button>
+        <button id="zoom-in" title="Zoom In">+</button>
+        <button id="zoom-out" title="Zoom Out">&minus;</button>
+      </div>
+      <div id="speed-controls">
+        <button data-speed="0">&#9646;&#9646;</button>
+        <button data-speed="1" class="active">&#9654;</button>
+        <button data-speed="2">&#9654;&#9654;</button>
+        <button data-speed="3">&#9654;&#9654;&#9654;</button>
+      </div>
+      <div id="log-panel">
+        <h3>Activity Log</h3>
+        <div id="log-entries"></div>
+      </div>
+      <div id="agent-tooltip">
+        <div class="name"></div>
+        <div class="status"></div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

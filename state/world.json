@@ -1,0 +1,32 @@
+{
+  "agents": [
+    {
+      "id": "agent-1",
+      "name": "Alice",
+      "color": "#4a90d9",
+      "position": { "x": 3, "z": -2 },
+      "action": "idle",
+      "room": "Living Room",
+      "status": "Relaxing"
+    },
+    {
+      "id": "agent-2",
+      "name": "Bob",
+      "color": "#d94a4a",
+      "position": { "x": 10, "z": -3 },
+      "action": "idle",
+      "room": "Kitchen",
+      "status": "Looking for snacks"
+    },
+    {
+      "id": "agent-3",
+      "name": "Charlie",
+      "color": "#4ad98a",
+      "position": { "x": 2, "z": -8 },
+      "action": "idle",
+      "room": "Bedroom 1",
+      "status": "Just woke up"
+    }
+  ],
+  "lastUpdated": 0
+}
