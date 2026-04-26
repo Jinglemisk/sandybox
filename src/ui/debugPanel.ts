@@ -116,22 +116,37 @@ export class DebugPanel {
       const hairColor = this.darkenColor(color, 0.35);
 
       // Build category buttons positioned in an arc
+      const subArcRadius = 80; // px from category center for sub-items
+
       const catHtml = categories.map((cat, i) => {
         const angleDeg = arcStart + (i / (arcCount - 1)) * arcSpread;
         const angleRad = (angleDeg * Math.PI) / 180;
         const x = Math.cos(angleRad) * arcRadius;
         const y = Math.sin(angleRad) * arcRadius;
+
+        // Sub-items also fan in an arc from the category button
+        const subCount = cat.items.length;
+        const subSpread = Math.min(subCount * 22, 90); // tighter arc for fewer items
+        const subStart = -subSpread / 2;
+
+        const subHtml = cat.items.map((item, j) => {
+          const subAngleDeg = subCount === 1 ? 0 : subStart + (j / (subCount - 1)) * subSpread;
+          const subAngleRad = (subAngleDeg * Math.PI) / 180;
+          const sx = Math.cos(subAngleRad) * subArcRadius;
+          const sy = Math.sin(subAngleRad) * subArcRadius;
+          return `
+            <div class="sub-btn" data-cmd="${item.cmd}" data-agent="${agent.state.id}" ${item.data ? `data-room="${item.data}"` : ''}
+                 style="left:${sx}px; top:${sy}px; transform: translate(0, -50%);">
+              ${item.label}
+            </div>
+          `;
+        }).join('');
+
         return `
           <div class="cat-btn" data-cat="${cat.label}" data-agent="${agent.state.id}"
                style="left:${x}px; top:${y}px; transform: translate(0, -50%);">
             <span class="cat-icon">${cat.icon}</span> ${cat.label}
-            <div class="sub-menu">
-              ${cat.items.map(item => `
-                <div class="sub-btn" data-cmd="${item.cmd}" data-agent="${agent.state.id}" ${item.data ? `data-room="${item.data}"` : ''}>
-                  ${item.label}
-                </div>
-              `).join('')}
-            </div>
+            <div class="sub-menu">${subHtml}</div>
           </div>
         `;
       }).join('');

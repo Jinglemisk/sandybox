@@ -301,3 +301,32 @@ These traits are fixed at agent creation and stored in the agent's state file. T
 2. Day/night cycle
 3. Sound effects
 4. Agent mood dynamics (future)
+
+## File Ownership
+
+Assets have been refactored into data files for clear ownership between the tech lead (Nova) and the design agent (Kat).
+
+### Design Agent (Kat) owns:
+| File | Purpose |
+|------|---------|
+| `src/styles.css` | All UI styling — colors, layout, animations |
+| `src/world/room-data.ts` | Room configs: colors, dimensions, floor materials, tile settings. Also global colors (sky, ground, path, roof, windows) |
+| `src/world/furniture-data.ts` | Furniture placement data: positions, colors, dimensions. Also flower bed placements |
+
+### Tech Lead (Nova) owns:
+| File | Purpose |
+|------|---------|
+| `src/world/house.ts` | House builder logic (reads room-data.ts) |
+| `src/world/furniture.ts` | Furniture builder logic (reads furniture-data.ts) |
+| `src/agents/*` | Agent system, pathfinding, simulation |
+| `src/camera/*` | Camera system |
+| `src/state/*` | State management |
+| `src/ui/*` | UI logic (debugPanel, activityLog, speechBubbles) |
+| `src/main.ts` | App entry point |
+| `index.html` | HTML structure only (no styles) |
+| `docs/*` | Documentation |
+
+### Shared (coordinate before editing):
+| File | Purpose |
+|------|---------|
+| `state/*` | Agent state files (read by renderer, written by agents) |

@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import { House } from './world/house';
+import './styles.css';
+import { House, SKY_COLOR } from './world/house';
 import { createFurniture } from './world/furniture';
 import { ROOMS } from './world/house';
 import { SimsCamera } from './camera/camera';
@@ -19,12 +20,12 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFShadowMap;
-renderer.setClearColor(0x87ceeb); // Sky blue
+renderer.setClearColor(SKY_COLOR);
 app.insertBefore(renderer.domElement, app.firstChild);
 
 // Scene
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0x87ceeb, 25, 50);
+scene.fog = new THREE.Fog(SKY_COLOR, 25, 50);
 
 // Camera
 const simsCamera = new SimsCamera(window.innerWidth / window.innerHeight);

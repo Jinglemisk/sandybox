@@ -1,6 +1,17 @@
 import * as THREE from 'three';
 
-// Room definitions with positions and sizes (in world units)
+import {
+  ROOM_CONFIGS, WALL_HEIGHT, WALL_THICKNESS,
+  INTERIOR_WALL_COLOR, GROUND_COLOR, PATIO_COLOR,
+  PATH_COLOR, PATH_EDGE_COLOR, STREET_COLOR, SIDEWALK_COLOR,
+  ROOF_COLOR, ROOF_OPACITY, DOOR_FRAME_COLOR,
+  WINDOW_FRAME_COLOR, WINDOW_GLASS_COLOR, WINDOW_GLASS_OPACITY, SKY_COLOR,
+} from './room-data';
+
+// Re-export for other modules
+export { SKY_COLOR };
+
+// Room definitions derived from room-data.ts configs
 export interface RoomDef {
   name: string;
   x: number;
@@ -11,20 +22,15 @@ export interface RoomDef {
   floorColor: number;
 }
 
-// House layout:
-// Front row (z=0): Living Room (10x8), Kitchen (8x8)
-// Back row (z=-8): Bedroom 1 (5.5x6), Bedroom 2 (5.5x6), Bedroom 3 (4x6), Bathroom (3x6)
-export const ROOMS: RoomDef[] = [
-  { name: 'Living Room', x: 0, z: 0, width: 10, depth: 8, color: 0xf0e6d2, floorColor: 0xd4b896 },
-  { name: 'Kitchen',     x: 10, z: 0, width: 8, depth: 8, color: 0xe0eed0, floorColor: 0xb8c8a0 },
-  { name: 'Bedroom 1',   x: 0, z: -8, width: 5.5, depth: 6, color: 0xd8ddf0, floorColor: 0xb0b8d8 },
-  { name: 'Bedroom 2',   x: 5.5, z: -8, width: 5.5, depth: 6, color: 0xf0d8e0, floorColor: 0xd8b0b8 },
-  { name: 'Bedroom 3',   x: 11, z: -8, width: 4, depth: 6, color: 0xf0ecd8, floorColor: 0xd8d4b0 },
-  { name: 'Bathroom',    x: 15, z: -8, width: 3, depth: 6, color: 0xe8f0f0, floorColor: 0xc8dada },
-];
-
-const WALL_HEIGHT = 3.2;
-const WALL_THICKNESS = 0.15;
+export const ROOMS: RoomDef[] = ROOM_CONFIGS.map(rc => ({
+  name: rc.name,
+  x: rc.x,
+  z: rc.z,
+  width: rc.width,
+  depth: rc.depth,
+  color: rc.wallColor,
+  floorColor: rc.floorColor,
+}));
 
 export interface WallSegment {
   mesh: THREE.Mesh;
@@ -47,13 +53,14 @@ export class House {
   }
 
   private buildFloors() {
-    for (const room of ROOMS) {
+    for (let i = 0; i < ROOMS.length; i++) {
+      const room = ROOMS[i];
+      const rc = ROOM_CONFIGS[i];
       const geo = new THREE.PlaneGeometry(room.width, room.depth);
-      const isBathroom = room.name === 'Bathroom';
       const mat = new THREE.MeshStandardMaterial({
         color: room.floorColor,
-        roughness: isBathroom ? 0.3 : 0.7,
-        metalness: isBathroom ? 0.15 : 0.05,
+        roughness: rc.floorRoughness,
+        metalness: rc.floorMetalness,
       });
       const floor = new THREE.Mesh(geo, mat);
       floor.rotation.x = -Math.PI / 2;
@@ -62,9 +69,9 @@ export class House {
       this.group.add(floor);
       this.floors.push(floor);
 
-      // Bathroom tile grid lines
-      if (isBathroom) {
-        const tileMat = new THREE.MeshStandardMaterial({ color: 0xa0baba, roughness: 0.3 });
+      // Tile grid lines
+      if (rc.tiledFloor) {
+        const tileMat = new THREE.MeshStandardMaterial({ color: rc.tileLineColor, roughness: 0.3 });
         for (let tx = 0; tx < room.width; tx += 0.5) {
           const line = new THREE.Mesh(new THREE.PlaneGeometry(0.02, room.depth), tileMat);
           line.rotation.x = -Math.PI / 2;
@@ -87,7 +94,7 @@ export class House {
 
     // Ground plane
     const groundGeo = new THREE.PlaneGeometry(50, 50);
-    const groundMat = new THREE.MeshStandardMaterial({ color: 0x5a8c4a, roughness: 0.9 });
+    const groundMat = new THREE.MeshStandardMaterial({ color: GROUND_COLOR, roughness: 0.9 });
     const ground = new THREE.Mesh(groundGeo, groundMat);
     ground.rotation.x = -Math.PI / 2;
     ground.position.set(9, -0.02, -5);
@@ -96,7 +103,7 @@ export class House {
 
     // Path/patio outside front door
     const patioGeo = new THREE.PlaneGeometry(4, 3);
-    const patioMat = new THREE.MeshStandardMaterial({ color: 0xb0a898, roughness: 0.9 });
+    const patioMat = new THREE.MeshStandardMaterial({ color: PATIO_COLOR, roughness: 0.9 });
     const patio = new THREE.Mesh(patioGeo, patioMat);
     patio.rotation.x = -Math.PI / 2;
     patio.position.set(5, 0.005, 1.5);
@@ -137,12 +144,12 @@ export class House {
 
     // South wall (front) z=0 - full width with door gap in living room
     // Left section: x=0 to x=3.5
-    this.createWall(1.75, 0, 3.5, WALL_HEIGHT, 0, 0xf0e6d2, 'S', true);
+    this.createWall(1.75, 0, 3.5, WALL_HEIGHT, 0, ROOM_CONFIGS[0].wallColor, 'S', true);
     // Right of door: x=5.5 to x=18
-    this.createWall(11.75, 0, 12.5, WALL_HEIGHT, 0, 0xf0e6d2, 'S', true);
+    this.createWall(11.75, 0, 12.5, WALL_HEIGHT, 0, ROOM_CONFIGS[0].wallColor, 'S', true);
 
     // North wall (back) z=-14 - full width
-    this.createWall(9, -14, 18, WALL_HEIGHT, 0, 0xe0d8c8, 'N', true);
+    this.createWall(9, -14, 18, WALL_HEIGHT, 0, INTERIOR_WALL_COLOR, 'N', true);
 
     // West wall (left) x=0 - full height z=0 to z=-14
     this.createWall(0, -7, 14, WALL_HEIGHT, Math.PI / 2, 0xf0e6d2, 'W', true);
@@ -154,40 +161,40 @@ export class House {
 
     // Wall between living room and kitchen (x=10, z=0 to z=-8)
     // Top section with doorway gap at z=-3 to z=-5
-    this.createWall(10, -1.5, 3, WALL_HEIGHT, Math.PI / 2, 0xe8e0d0, 'E', false);
-    this.createWall(10, -6.5, 3, WALL_HEIGHT, Math.PI / 2, 0xe8e0d0, 'E', false);
+    this.createWall(10, -1.5, 3, WALL_HEIGHT, Math.PI / 2, INTERIOR_WALL_COLOR, 'E', false);
+    this.createWall(10, -6.5, 3, WALL_HEIGHT, Math.PI / 2, INTERIOR_WALL_COLOR, 'E', false);
 
     // Horizontal wall between front rooms and back rooms (z=-8, full width)
     // With doorway gaps for each back room
-    this.createWall(1, -8, 2, WALL_HEIGHT, 0, 0xe8e0d0, 'N', false);       // 0 to 2
-    this.createWall(5, -8, 4, WALL_HEIGHT, 0, 0xe8e0d0, 'N', false);       // 3 to 7
-    this.createWall(10, -8, 3, WALL_HEIGHT, 0, 0xe8e0d0, 'N', false);      // 8.5 to 11.5
-    this.createWall(14.25, -8, 3.5, WALL_HEIGHT, 0, 0xe8e0d0, 'N', false); // 12.5 to 16
-    this.createWall(17.25, -8, 1.5, WALL_HEIGHT, 0, 0xe8e0d0, 'N', false); // 16.5 to 18
+    this.createWall(1, -8, 2, WALL_HEIGHT, 0, INTERIOR_WALL_COLOR, 'N', false);       // 0 to 2
+    this.createWall(5, -8, 4, WALL_HEIGHT, 0, INTERIOR_WALL_COLOR, 'N', false);       // 3 to 7
+    this.createWall(10, -8, 3, WALL_HEIGHT, 0, INTERIOR_WALL_COLOR, 'N', false);      // 8.5 to 11.5
+    this.createWall(14.25, -8, 3.5, WALL_HEIGHT, 0, INTERIOR_WALL_COLOR, 'N', false); // 12.5 to 16
+    this.createWall(17.25, -8, 1.5, WALL_HEIGHT, 0, INTERIOR_WALL_COLOR, 'N', false); // 16.5 to 18
 
     // Walls between bedrooms
     // Between bedroom 1 and 2 (x=5.5)
-    this.createWall(5.5, -9.5, 3, WALL_HEIGHT, Math.PI / 2, 0xe8e0d0, 'E', false);
-    this.createWall(5.5, -13, 2, WALL_HEIGHT, Math.PI / 2, 0xe8e0d0, 'E', false);
+    this.createWall(5.5, -9.5, 3, WALL_HEIGHT, Math.PI / 2, INTERIOR_WALL_COLOR, 'E', false);
+    this.createWall(5.5, -13, 2, WALL_HEIGHT, Math.PI / 2, INTERIOR_WALL_COLOR, 'E', false);
 
     // Between bedroom 2 and 3 (x=11)
-    this.createWall(11, -9.5, 3, WALL_HEIGHT, Math.PI / 2, 0xe8e0d0, 'E', false);
-    this.createWall(11, -13, 2, WALL_HEIGHT, Math.PI / 2, 0xe8e0d0, 'E', false);
+    this.createWall(11, -9.5, 3, WALL_HEIGHT, Math.PI / 2, INTERIOR_WALL_COLOR, 'E', false);
+    this.createWall(11, -13, 2, WALL_HEIGHT, Math.PI / 2, INTERIOR_WALL_COLOR, 'E', false);
 
     // Between bedroom 3 and bathroom (x=15)
-    this.createWall(15, -9.5, 3, WALL_HEIGHT, Math.PI / 2, 0xe8e0d0, 'E', false);
-    this.createWall(15, -13, 2, WALL_HEIGHT, Math.PI / 2, 0xe8e0d0, 'E', false);
+    this.createWall(15, -9.5, 3, WALL_HEIGHT, Math.PI / 2, INTERIOR_WALL_COLOR, 'E', false);
+    this.createWall(15, -13, 2, WALL_HEIGHT, Math.PI / 2, INTERIOR_WALL_COLOR, 'E', false);
   }
 
   private buildRoof() {
     // Subtle thin roof line - barely visible, just for shadow
     const roofGeo = new THREE.PlaneGeometry(18.4, 14.4);
     const roofMat = new THREE.MeshStandardMaterial({
-      color: 0x8b7355,
+      color: ROOF_COLOR,
       roughness: 0.9,
       side: THREE.DoubleSide,
       transparent: true,
-      opacity: 0.15,
+      opacity: ROOF_OPACITY,
     });
     const roof = new THREE.Mesh(roofGeo, roofMat);
     roof.rotation.x = Math.PI / 2;
@@ -196,7 +203,7 @@ export class House {
   }
 
   private buildDoorFrames() {
-    const frameMat = new THREE.MeshStandardMaterial({ color: 0x8a7a6a, roughness: 0.6 });
+    const frameMat = new THREE.MeshStandardMaterial({ color: DOOR_FRAME_COLOR, roughness: 0.6 });
 
     // Front door frame (x=3.5 to x=5.5, z=0)
     const doorTop = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.15, 0.2), frameMat);
@@ -214,13 +221,13 @@ export class House {
     width: number, height: number,
     rotY: number
   ) {
-    const frameMat = new THREE.MeshStandardMaterial({ color: 0xf0f0f0, roughness: 0.4, metalness: 0.2 });
+    const frameMat = new THREE.MeshStandardMaterial({ color: WINDOW_FRAME_COLOR, roughness: 0.4, metalness: 0.2 });
     const glassMat = new THREE.MeshStandardMaterial({
-      color: 0xa8d4f0,
+      color: WINDOW_GLASS_COLOR,
       roughness: 0.1,
       metalness: 0.3,
       transparent: true,
-      opacity: 0.35,
+      opacity: WINDOW_GLASS_OPACITY,
     });
 
     const group = new THREE.Group();
@@ -294,8 +301,8 @@ export class House {
   }
 
   private buildFootpath() {
-    const pathMat = new THREE.MeshStandardMaterial({ color: 0xc0b0a0, roughness: 0.85 });
-    const edgeMat = new THREE.MeshStandardMaterial({ color: 0x9a8a7a, roughness: 0.9 });
+    const pathMat = new THREE.MeshStandardMaterial({ color: PATH_COLOR, roughness: 0.85 });
+    const edgeMat = new THREE.MeshStandardMaterial({ color: PATH_EDGE_COLOR, roughness: 0.9 });
 
     // Main path from front door (x=4.5, z=0) curving out to the "street" (z=8)
     const segments = [
@@ -327,7 +334,7 @@ export class House {
 
     // "Street" at the end — a wider strip
     const streetGeo = new THREE.PlaneGeometry(20, 2.5);
-    const streetMat = new THREE.MeshStandardMaterial({ color: 0x707070, roughness: 0.9 });
+    const streetMat = new THREE.MeshStandardMaterial({ color: STREET_COLOR, roughness: 0.9 });
     const street = new THREE.Mesh(streetGeo, streetMat);
     street.rotation.x = -Math.PI / 2;
     street.position.set(9, 0.003, 9);
@@ -336,7 +343,7 @@ export class House {
 
     // Sidewalk along street
     const sidewalkGeo = new THREE.PlaneGeometry(22, 1.2);
-    const sidewalkMat = new THREE.MeshStandardMaterial({ color: 0xb8b0a0, roughness: 0.85 });
+    const sidewalkMat = new THREE.MeshStandardMaterial({ color: SIDEWALK_COLOR, roughness: 0.85 });
     const sidewalk = new THREE.Mesh(sidewalkGeo, sidewalkMat);
     sidewalk.rotation.x = -Math.PI / 2;
     sidewalk.position.set(9, 0.004, 7.9);
