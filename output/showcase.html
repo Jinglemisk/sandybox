@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>sandybox — Design System by Kat</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Quicksand:wght@400;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg:        #181a1e;
+  --surface:   #1e2226;
+  --card:      #242830;
+  --border:    rgba(168,224,216,0.16);
+  --border-hi: rgba(168,224,216,0.4);
+  --teal:      #a8e0d8;
+  --teal-mid:  #88c8c0;
+  --orange:    #f0c4a0;
+  --yellow:    #f0e0a0;
+  --magenta:   #e8a8c8;
+  --txt:       #e8e4e0;
+  --txt2:      #a8a098;
+  --txt3:      #686460;
+  --r:         10px;
+  --r-lg:      18px;
+  --glow:      0 0 20px rgba(168,224,216,0.18);
+  --font:      'Nunito', 'Segoe UI', system-ui, sans-serif;
+}
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--txt);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  padding: 64px 24px 48px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(168,224,216,0.12) 0%, transparent 70%);
+  border-bottom: 1px solid var(--border);
+}
+.diamond-hero {
+  display: block;
+  margin: 0 auto 24px;
+  width: 48px; height: 68px;
+  filter: drop-shadow(0 0 20px rgba(168,224,216,0.4));
+}
+.header h1 {
+  font-size: 40px;
+  font-weight: 200;
+  letter-spacing: 8px;
+  text-transform: uppercase;
+  color: var(--txt);
+  margin-bottom: 6px;
+}
+.header h1 strong { font-weight: 800; color: var(--teal); }
+.header p {
+  font-size: 14px;
+  color: var(--txt2);
+  max-width: 560px;
+  margin: 0 auto 20px;
+}
+.badge-row { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 14px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.badge.teal    { background: rgba(168,224,216,0.08); color: var(--teal); }
+.badge.orange  { background: rgba(240,196,160,0.08); border-color: rgba(240,196,160,0.25); color: var(--orange); }
+.badge.yellow  { background: rgba(240,224,160,0.08); border-color: rgba(240,224,160,0.25); color: var(--yellow); }
+.badge.magenta { background: rgba(232,168,200,0.08); border-color: rgba(232,168,200,0.25); color: var(--magenta); }
+
+/* Layout */
+.section {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 52px 24px;
+  border-bottom: 1px solid var(--border);
+}
+.section:last-child { border-bottom: none; }
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 32px;
+}
+.section-label {
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--teal);
+  white-space: nowrap;
+}
+.section-line { flex: 1; height: 1px; background: var(--border); }
+.section-num { font-size: 10px; color: var(--txt3); letter-spacing: 2px; }
+
+/* Screenshot */
+.screenshot-wrap {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.screenshot-wrap img { width: 100%; display: block; }
+.screenshot-caption {
+  padding: 14px 20px;
+  font-size: 12px;
+  color: var(--txt2);
+}
+
+/* Icon Grid */
+.icon-showcase {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 14px;
+}
+.icon-cell {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 24px 12px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s ease;
+}
+.icon-cell:hover {
+  border-color: var(--border-hi);
+  transform: translateY(-3px);
+  box-shadow: var(--glow);
+}
+.icon-label {
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--txt3);
+  text-align: center;
+}
+.icon-cell:hover .icon-label { color: var(--txt2); }
+
+/* UI Components */
+.ui-preview-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.component-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 28px 24px;
+  position: relative;
+  overflow: hidden;
+}
+.component-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--teal-mid), transparent);
+}
+.component-card h3 {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 20px;
+}
+
+/* Speed bar demo */
+.speed-bar {
+  display: flex; gap: 6px;
+  background: rgba(24,28,32,0.9);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  padding: 6px 8px;
+  width: fit-content;
+}
+.speed-btn {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: rgba(255,255,255,0.02);
+  display: flex; align-items: center; justify-content: center;
+}
+.speed-btn.active {
+  background: rgba(168,224,216,0.16);
+  border-color: var(--teal-mid);
+  box-shadow: 0 0 12px rgba(168,224,216,0.22);
+}
+.speed-btn svg { width: 18px; height: 18px; }
+
+/* Bubble demo */
+.bubble-demo {
+  background: #f0faf8;
+  color: #1e2428;
+  padding: 8px 13px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(168,224,216,0.30);
+  font-size: 12px;
+  font-weight: 500;
+  max-width: 220px;
+  position: relative;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  line-height: 1.45;
+}
+.bubble-demo::after {
+  content: '';
+  position: absolute;
+  bottom: -10px; left: 50%; transform: translateX(-50%);
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 10px solid #f0faf8;
+}
+
+/* Log demo */
+.log-demo {
+  background: rgba(24,28,32,0.92);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--teal-mid);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.log-head {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px 8px;
+  border-bottom: 1px solid var(--border);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+.log-entry-demo {
+  display: flex; align-items: baseline; gap: 6px;
+  padding: 5px 14px;
+  border-bottom: 1px solid rgba(168,224,216,0.04);
+  font-size: 12px;
+}
+.log-entry-demo:last-child { border-bottom: none; }
+.log-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; align-self: flex-start; }
+.log-time { font-size: 10.5px; color: var(--txt3); flex-shrink: 0; }
+.log-name { font-weight: 700; flex-shrink: 0; }
+.log-text { color: var(--txt2); font-size: 12px; }
+
+/* Portrait demo */
+.agent-demo { display: flex; flex-direction: column; gap: 10px; }
+.portrait-demo { display: flex; align-items: center; gap: 12px; }
+.portrait-hex {
+  width: 54px; height: 54px;
+  background: rgba(24,28,32,0.9);
+  border: 2px solid var(--border);
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.portrait-hex.active { border-color: var(--teal-mid); box-shadow: 0 0 18px rgba(168,224,216,0.25); }
+.portrait-info { display: flex; flex-direction: column; gap: 2px; }
+.portrait-pname { font-size: 13px; font-weight: 700; color: var(--txt); }
+.portrait-mood { font-size: 11px; color: var(--txt2); display: flex; align-items: center; gap: 5px; }
+
+/* Palette */
+.palette-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 12px;
+}
+.swatch {
+  height: 72px;
+  border-radius: var(--r);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: transform 0.18s ease;
+}
+.swatch:hover { transform: translateY(-3px) scale(1.03); }
+.swatch-label {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 4px 8px;
+  background: rgba(0,0,0,0.45);
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.8);
+}
+
+/* Theme cards */
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.theme-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 24px;
+  transition: all 0.2s ease;
+}
+.theme-card:hover {
+  border-color: var(--border-hi);
+  transform: translateY(-3px);
+  box-shadow: var(--glow);
+}
+.theme-card.primary {
+  border-color: var(--teal-mid);
+  box-shadow: var(--glow);
+}
+.theme-card h4 {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.theme-card .theme-desc {
+  font-size: 11px;
+  color: var(--txt2);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+.theme-swatches {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.theme-swatch {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.theme-tag {
+  display: inline-block;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  color: var(--txt3);
+}
+.theme-card.primary .theme-tag {
+  border-color: var(--teal-mid);
+  color: var(--teal);
+  background: rgba(168,224,216,0.08);
+}
+
+/* Font cards */
+.font-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.font-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 24px;
+  transition: all 0.2s ease;
+}
+.font-card:hover {
+  border-color: var(--border-hi);
+  transform: translateY(-3px);
+  box-shadow: var(--glow);
+}
+.font-card.primary {
+  border-color: var(--teal-mid);
+  box-shadow: var(--glow);
+}
+.font-card h4 {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.font-card .font-desc {
+  font-size: 11px;
+  color: var(--txt2);
+  margin-bottom: 14px;
+}
+.font-sample {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--txt);
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+.font-sample-sm {
+  font-size: 12px;
+  color: var(--txt2);
+  line-height: 1.5;
+}
+.font-card .theme-tag {
+  margin-top: 12px;
+}
+.font-card.primary .theme-tag {
+  border-color: var(--teal-mid);
+  color: var(--teal);
+  background: rgba(168,224,216,0.08);
+}
+
+/* Notes */
+.notes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.note-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.note-card::after {
+  content: attr(data-num);
+  position: absolute;
+  top: 12px; right: 14px;
+  font-size: 32px;
+  font-weight: 900;
+  color: rgba(168,224,216,0.05);
+  line-height: 1;
+}
+.note-card h4 { font-size: 12px; font-weight: 700; color: var(--teal); margin-bottom: 8px; }
+.note-card p { font-size: 12.5px; color: var(--txt2); line-height: 1.6; }
+
+.footer {
+  text-align: center;
+  padding: 32px;
+  font-size: 11px;
+  color: var(--txt3);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.footer span { color: var(--teal); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <svg class="diamond-hero" viewBox="0 0 48 68" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#a8e0d8"/>
+        <stop offset="100%" style="stop-color:#609890"/>
+      </linearGradient>
+      <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" style="stop-color:#88c8c0"/>
+        <stop offset="100%" style="stop-color:#a8e0d8"/>
+      </linearGradient>
+    </defs>
+    <polygon points="24,2 44,20 24,68 4,20" fill="url(#g1)"/>
+    <polygon points="24,2 44,20 24,38 4,20" fill="url(#g2)"/>
+    <line x1="4" y1="20" x2="44" y2="20" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+    <polygon points="24,10 36,20 24,30 12,20" fill="rgba(255,255,255,0.08)"/>
+  </svg>
+
+  <h1>sandy<strong>box</strong></h1>
+  <p>Design system by Kat — pastel teal/orange/yellow/magenta palette with font alternatives for a future user-customizable theme picker.</p>
+  <div class="badge-row">
+    <span class="badge teal">Pastel Teal</span>
+    <span class="badge orange">Pastel Orange</span>
+    <span class="badge yellow">Pastel Yellow</span>
+    <span class="badge magenta">Pastel Magenta</span>
+  </div>
+</div>
+
+<!-- LIVE SCREENSHOT -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-label">Live Preview</span>
+    <div class="section-line"></div>
+    <span class="section-num">01</span>
+  </div>
+  <div class="screenshot-wrap">
+    <img src="screenshot.png" alt="sandybox — pastel teal theme live"/>
+    <div class="screenshot-caption">Current theme: Pastel Teal primary, with orange/yellow/magenta as semantic accents</div>
+  </div>
+</div>
+
+<!-- COLOR PALETTE -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-label">Primary Palette</span>
+    <div class="section-line"></div>
+    <span class="section-num">02</span>
+  </div>
+  <p style="font-size:13px; color:var(--txt2); margin-bottom:24px; max-width:680px;">
+    Four pastel colors, each with a semantic role. Teal is the primary UI accent, orange marks actions, yellow highlights, magenta tracks movement and mood.
+  </p>
+  <div class="palette-grid">
+    <div class="swatch" style="background:#a8e0d8"><span class="swatch-label">Teal</span></div>
+    <div class="swatch" style="background:#88c8c0"><span class="swatch-label">Teal Mid</span></div>
+    <div class="swatch" style="background:#609890"><span class="swatch-label">Teal Deep</span></div>
+    <div class="swatch" style="background:#f0c4a0"><span class="swatch-label">Orange</span></div>
+    <div class="swatch" style="background:#f0e0a0"><span class="swatch-label">Yellow</span></div>
+    <div class="swatch" style="background:#e8a8c8"><span class="swatch-label">Magenta</span></div>
+    <div class="swatch" style="background:#1e2226"><span class="swatch-label">Surface</span></div>
+    <div class="swatch" style="background:#242830"><span class="swatch-label">Card</span></div>
+    <div class="swatch" style="background:#e8e4e0"><span class="swatch-label">Text</span></div>
+    <div class="swatch" style="background:#a8a098"><span class="swatch-label">Text Soft</span></div>
+  </div>
+</div>
+
+<!-- THEME ALTERNATIVES -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-label">Theme Alternatives</span>
+    <div class="section-line"></div>
+    <span class="section-num">03</span>
+  </div>
+  <p style="font-size:13px; color:var(--txt2); margin-bottom:24px; max-width:680px;">
+    Three pastel palettes for a future theme picker. All use the same 4-color structure (primary, action, highlight, mood) so swapping is seamless.
+  </p>
+
+  <div class="theme-grid">
+    <!-- Primary (current) -->
+    <div class="theme-card primary">
+      <h4 style="color:var(--teal)">Seafoam</h4>
+      <div class="theme-desc">Current theme. Cool teal lead with warm orange/yellow/magenta support.</div>
+      <div class="theme-swatches">
+        <div class="theme-swatch" style="background:#a8e0d8"></div>
+        <div class="theme-swatch" style="background:#f0c4a0"></div>
+        <div class="theme-swatch" style="background:#f0e0a0"></div>
+        <div class="theme-swatch" style="background:#e8a8c8"></div>
+      </div>
+      <span class="theme-tag">Active</span>
+    </div>
+
+    <!-- Alt 1: Peach Blossom -->
+    <div class="theme-card">
+      <h4 style="color:#f0b8a0">Peach Blossom</h4>
+      <div class="theme-desc">Warm peach lead with soft mint/butter/lilac. Cozy and inviting.</div>
+      <div class="theme-swatches">
+        <div class="theme-swatch" style="background:#f0b8a0"></div>
+        <div class="theme-swatch" style="background:#a8d8c8"></div>
+        <div class="theme-swatch" style="background:#f0dca0"></div>
+        <div class="theme-swatch" style="background:#c8a8e0"></div>
+      </div>
+      <span class="theme-tag">Alternative</span>
+    </div>
+
+    <!-- Alt 2: Lavender Dream -->
+    <div class="theme-card">
+      <h4 style="color:#c8b0e0">Lavender Dream</h4>
+      <div class="theme-desc">Soft lavender lead with pastel coral/lemon/mint. Calm and playful.</div>
+      <div class="theme-swatches">
+        <div class="theme-swatch" style="background:#c8b0e0"></div>
+        <div class="theme-swatch" style="background:#f0a8a8"></div>
+        <div class="theme-swatch" style="background:#e8e0a0"></div>
+        <div class="theme-swatch" style="background:#a0d8c8"></div>
+      </div>
+      <span class="theme-tag">Alternative</span>
+    </div>
+  </div>
+</div>
+
+<!-- FONTS -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-label">Font Options</span>
+    <div class="section-line"></div>
+    <span class="section-num">04</span>
+  </div>
+  <p style="font-size:13px; color:var(--txt2); margin-bottom:24px; max-width:680px;">
+    Three fonts for a future font picker. All are Google Fonts (free, web-safe). Each suits a different game UI mood.
+  </p>
+
+  <div class="font-grid">
+    <!-- Nunito (current) -->
+    <div class="font-card primary">
+      <h4 style="color:var(--teal)">Nunito</h4>
+      <div class="font-desc">Rounded, friendly, game-like. Current font.</div>
+      <div class="font-sample" style="font-family:'Nunito',sans-serif;">Activity Log</div>
+      <div class="font-sample-sm" style="font-family:'Nunito',sans-serif;">Alice sat on the couch. Bob is cooking dinner in the kitchen. Charlie moved to Bedroom 2.</div>
+      <span class="theme-tag">Active</span>
+    </div>
+
+    <!-- Quicksand -->
+    <div class="font-card">
+      <h4 style="color:var(--orange)">Quicksand</h4>
+      <div class="font-desc">Geometric, modern, clean. Lighter weight feel.</div>
+      <div class="font-sample" style="font-family:'Quicksand',sans-serif;">Activity Log</div>
+      <div class="font-sample-sm" style="font-family:'Quicksand',sans-serif;">Alice sat on the couch. Bob is cooking dinner in the kitchen. Charlie moved to Bedroom 2.</div>
+      <span class="theme-tag">Alternative</span>
+    </div>
+
+    <!-- Rubik -->
+    <div class="font-card">
+      <h4 style="color:var(--magenta)">Rubik</h4>
+      <div class="font-desc">Clean, sturdy, slightly rounded. Great for dense info.</div>
+      <div class="font-sample" style="font-family:'Rubik',sans-serif;">Activity Log</div>
+      <div class="font-sample-sm" style="font-family:'Rubik',sans-serif;">Alice sat on the couch. Bob is cooking dinner in the kitchen. Charlie moved to Bedroom 2.</div>
+      <span class="theme-tag">Alternative</span>
+    </div>
+  </div>
+</div>
+
+<!-- ICON SET -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-label">Icon Set</span>
+    <div class="section-line"></div>
+    <span class="section-num">05</span>
+  </div>
+  <p style="font-size:13px; color:var(--txt2); margin-bottom:24px; max-width:680px;">
+    Bold, simple icons. Instantly readable at any size. No decorative noise.
+  </p>
+
+  <div class="icon-showcase">
+    <div class="icon-cell">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+        <rect x="5" y="4" width="5" height="16" rx="2" fill="#a8a098"/>
+        <rect x="14" y="4" width="5" height="16" rx="2" fill="#a8a098"/>
+      </svg>
+      <span class="icon-label">Pause</span>
+    </div>
+    <div class="icon-cell">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+        <path d="M7 4 L20 12 L7 20 Z" fill="#a8a098"/>
+      </svg>
+      <span class="icon-label">Play</span>
+    </div>
+    <div class="icon-cell">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+        <path d="M4 4 L13 12 L4 20 Z" fill="#a8a098"/>
+        <path d="M12 4 L21 12 L12 20 Z" fill="#a8a098"/>
+      </svg>
+      <span class="icon-label">Fast</span>
+    </div>
+    <div class="icon-cell">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+        <path d="M2 4 L9 12 L2 20 Z" fill="#a8a098"/>
+        <path d="M9 4 L16 12 L9 20 Z" fill="#a8a098"/>
+        <path d="M16 4 L23 12 L16 20 Z" fill="#a8a098"/>
+      </svg>
+      <span class="icon-label">Ultra</span>
+    </div>
+    <div class="icon-cell">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+        <path d="M12 4 C7.6 4 4 7.6 4 12 C4 16.4 7.6 20 12 20 C15.2 20 17.8 18.2 19 15.5" fill="none" stroke="#a8a098" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M12 1 L7 5 L12 9" fill="none" stroke="#a8a098" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="icon-label">Rotate L</span>
+    </div>
+    <div class="icon-cell">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+        <path d="M12 4 C16.4 4 20 7.6 20 12 C20 16.4 16.4 20 12 20 C8.8 20 6.2 18.2 5 15.5" fill="none" stroke="#a8a098" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M12 1 L17 5 L12 9" fill="none" stroke="#a8a098" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="icon-label">Rotate R</span>
+    </div>
+    <div class="icon-cell">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+        <circle cx="10" cy="10" r="7" fill="none" stroke="#a8a098" stroke-width="2.2"/>
+        <line x1="10" y1="6.5" x2="10" y2="13.5" stroke="#a8a098" stroke-width="2.2" stroke-linecap="round"/>
+        <line x1="6.5" y1="10" x2="13.5" y2="10" stroke="#a8a098" stroke-width="2.2" stroke-linecap="round"/>
+        <line x1="15.5" y1="15.5" x2="21" y2="21" stroke="#a8a098" stroke-width="2.8" stroke-linecap="round"/>
+      </svg>
+      <span class="icon-label">Zoom In</span>
+    </div>
+    <div class="icon-cell">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+        <circle cx="10" cy="10" r="7" fill="none" stroke="#a8a098" stroke-width="2.2"/>
+        <line x1="6.5" y1="10" x2="13.5" y2="10" stroke="#a8a098" stroke-width="2.2" stroke-linecap="round"/>
+        <line x1="15.5" y1="15.5" x2="21" y2="21" stroke="#a8a098" stroke-width="2.8" stroke-linecap="round"/>
+      </svg>
+      <span class="icon-label">Zoom Out</span>
+    </div>
+    <div class="icon-cell">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+        <rect x="4" y="3" width="16" height="18" rx="2" fill="none" stroke="#a8e0d8" stroke-width="2"/>
+        <line x1="7.5" y1="8" x2="16.5" y2="8" stroke="#a8e0d8" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="7.5" y1="12" x2="16.5" y2="12" stroke="#a8e0d8" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="7.5" y1="16" x2="13" y2="16" stroke="#a8e0d8" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+      <span class="icon-label">Activity Log</span>
+    </div>
+    <div class="icon-cell">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+        <ellipse cx="12" cy="12" rx="10" ry="6" fill="none" stroke="#a8a098" stroke-width="2.2"/>
+        <circle cx="12" cy="12" r="3.5" fill="#a8a098"/>
+        <circle cx="13" cy="11" r="1.2" fill="white" opacity="0.5"/>
+      </svg>
+      <span class="icon-label">Look</span>
+    </div>
+    <div class="icon-cell">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+        <path d="M6 18 L6 10 L18 10 L18 18" fill="none" stroke="#a8a098" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M4 18 L20 18" stroke="#a8a098" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M8 10 L8 6 L16 6 L16 10" fill="none" stroke="#a8a098" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="icon-label">Sit</span>
+    </div>
+    <div class="icon-cell">
+      <svg width="40" height="56" viewBox="0 0 24 34" fill="none">
+        <polygon points="12,1 20,9 12,33 4,9" fill="#a8e0d8"/>
+        <polygon points="12,1 20,9 12,18 4,9" fill="#88c8c0" opacity="0.75"/>
+      </svg>
+      <span class="icon-label">Diamond</span>
+    </div>
+  </div>
+</div>
+
+<!-- UI COMPONENTS -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-label">UI Components</span>
+    <div class="section-line"></div>
+    <span class="section-num">06</span>
+  </div>
+
+  <div class="ui-preview-grid">
+    <div class="component-card">
+      <h3>Speed Controls</h3>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <span style="font-size:10px;letter-spacing:2px;color:var(--txt3);text-transform:uppercase;width:60px;">Default</span>
+          <div class="speed-bar">
+            <div class="speed-btn"><svg viewBox="0 0 24 24" fill="none"><rect x="5" y="4" width="5" height="16" rx="2" fill="#686460"/><rect x="14" y="4" width="5" height="16" rx="2" fill="#686460"/></svg></div>
+            <div class="speed-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M7 4 L20 12 L7 20 Z" fill="#686460"/></svg></div>
+            <div class="speed-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M4 4 L13 12 L4 20 Z" fill="#686460"/><path d="M12 4 L21 12 L12 20 Z" fill="#686460"/></svg></div>
+            <div class="speed-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M2 4 L9 12 L2 20 Z" fill="#686460"/><path d="M9 4 L16 12 L9 20 Z" fill="#686460"/><path d="M16 4 L23 12 L16 20 Z" fill="#686460"/></svg></div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;">
+          <span style="font-size:10px;letter-spacing:2px;color:var(--txt3);text-transform:uppercase;width:60px;">Active</span>
+          <div class="speed-bar">
+            <div class="speed-btn"><svg viewBox="0 0 24 24" fill="none"><rect x="5" y="4" width="5" height="16" rx="2" fill="#686460"/><rect x="14" y="4" width="5" height="16" rx="2" fill="#686460"/></svg></div>
+            <div class="speed-btn active"><svg viewBox="0 0 24 24" fill="none"><path d="M7 4 L20 12 L7 20 Z" fill="#a8e0d8"/></svg></div>
+            <div class="speed-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M4 4 L13 12 L4 20 Z" fill="#686460"/><path d="M12 4 L21 12 L12 20 Z" fill="#686460"/></svg></div>
+            <div class="speed-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M2 4 L9 12 L2 20 Z" fill="#686460"/><path d="M9 4 L16 12 L9 20 Z" fill="#686460"/><path d="M16 4 L23 12 L16 20 Z" fill="#686460"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="component-card">
+      <h3>Agent Portraits</h3>
+      <div class="agent-demo">
+        <div class="portrait-demo">
+          <div class="portrait-hex active">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+              <circle cx="16" cy="11" r="7" fill="#88c8c0"/>
+              <path d="M6 32 C6 23 10 19 16 19 C22 19 26 23 26 32" fill="#88c8c0"/>
+            </svg>
+          </div>
+          <div class="portrait-info">
+            <div class="portrait-pname">Alice</div>
+            <div class="portrait-mood">
+              <svg width="8" height="12" viewBox="0 0 24 34" fill="none"><polygon points="12,1 20,9 12,33 4,9" fill="#a8e0d8"/></svg>
+              Happy
+            </div>
+          </div>
+        </div>
+        <div class="portrait-demo">
+          <div class="portrait-hex">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+              <circle cx="16" cy="11" r="7" fill="#f0c4a0"/>
+              <path d="M6 32 C6 23 10 19 16 19 C22 19 26 23 26 32" fill="#f0c4a0"/>
+            </svg>
+          </div>
+          <div class="portrait-info">
+            <div class="portrait-pname">Bob</div>
+            <div class="portrait-mood">
+              <svg width="8" height="12" viewBox="0 0 24 34" fill="none"><polygon points="12,1 20,9 12,33 4,9" fill="#f0c4a0"/></svg>
+              Neutral
+            </div>
+          </div>
+        </div>
+        <div class="portrait-demo">
+          <div class="portrait-hex">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+              <circle cx="16" cy="11" r="7" fill="#e8a8c8"/>
+              <path d="M6 32 C6 23 10 19 16 19 C22 19 26 23 26 32" fill="#e8a8c8"/>
+            </svg>
+          </div>
+          <div class="portrait-info">
+            <div class="portrait-pname">Charlie</div>
+            <div class="portrait-mood">
+              <svg width="8" height="12" viewBox="0 0 24 34" fill="none"><polygon points="12,1 20,9 12,33 4,9" fill="#e8a8c8"/></svg>
+              Sad
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="component-card">
+      <h3>Speech Bubbles</h3>
+      <div style="display:flex;flex-direction:column;gap:24px;align-items:flex-start;padding-bottom:12px;">
+        <div class="bubble-demo">I'm heading to the kitchen to make lunch!</div>
+        <div class="bubble-demo" style="background:#faf0e8;border-color:rgba(240,196,160,0.35);">Anyone want to watch TV?</div>
+      </div>
+    </div>
+
+    <div class="component-card">
+      <h3>Activity Log</h3>
+      <div class="log-demo">
+        <div class="log-head">
+          <svg width="8" height="12" viewBox="0 0 24 34" fill="none"><polygon points="12,1 20,9 12,33 4,9" fill="#a8e0d8"/></svg>
+          Activity Log
+        </div>
+        <div class="log-entry-demo">
+          <span class="log-dot" style="background:#88c8c0;"></span>
+          <span class="log-time">14:23</span>
+          <span class="log-name" style="color:#a8e0d8;">Alice</span>
+          <span class="log-text">sat on the couch</span>
+        </div>
+        <div class="log-entry-demo">
+          <span class="log-dot" style="background:#f0c4a0;"></span>
+          <span class="log-time">14:24</span>
+          <span class="log-name" style="color:#f0c4a0;">Bob</span>
+          <span class="log-text">cooked dinner at the stove</span>
+        </div>
+        <div class="log-entry-demo">
+          <span class="log-dot" style="background:#e8a8c8;"></span>
+          <span class="log-time">14:25</span>
+          <span class="log-name" style="color:#e8a8c8;">Charlie</span>
+          <span class="log-text">moved to Bedroom 2</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WHAT CHANGED -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-label">Design Notes</span>
+    <div class="section-line"></div>
+    <span class="section-num">07</span>
+  </div>
+  <div class="notes-grid">
+    <div class="note-card" data-num="1">
+      <h4>4-Color Pastel System</h4>
+      <p>Teal (primary UI), orange (actions), yellow (highlights), magenta (movement/mood). All as soft as each hue allows.</p>
+    </div>
+    <div class="note-card" data-num="2">
+      <h4>Theme-Ready Structure</h4>
+      <p>All colors live in CSS custom properties. Swapping themes means updating ~12 variables. Two alt palettes shown: Peach Blossom and Lavender Dream.</p>
+    </div>
+    <div class="note-card" data-num="3">
+      <h4>3 Font Options</h4>
+      <p>Nunito (current, rounded/friendly), Quicksand (geometric/modern), Rubik (clean/sturdy). All loaded via Google Fonts, ready for a font picker.</p>
+    </div>
+    <div class="note-card" data-num="4">
+      <h4>Semantic Color Roles</h4>
+      <p>Chat = teal, actions = orange, movement = magenta. The yellow is reserved for future highlights, notifications, or warnings.</p>
+    </div>
+    <div class="note-card" data-num="5">
+      <h4>Dark Base, Soft Accents</h4>
+      <p>Dark blue-grey background lets pastels pop without feeling washed out. Surface and card tones are neutral, not tinted.</p>
+    </div>
+    <div class="note-card" data-num="6">
+      <h4>All Pastel, Nothing Whacky</h4>
+      <p>Every color stays in the soft/muted pastel range. No neon, no saturated, no harsh contrasts. Cozy game UI feel throughout.</p>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  Kat &mdash; Principal Designer &nbsp;&middot;&nbsp; <span>sandybox</span> &nbsp;&middot;&nbsp; 2026
+</div>
+
+</body>
+</html>
