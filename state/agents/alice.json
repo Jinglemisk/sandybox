@@ -1,0 +1,32 @@
+{
+  "id": "alice",
+  "name": "Alice",
+  "color": "#4a90d9",
+  "position": {
+    "x": 10.634942209903743,
+    "y": 0,
+    "z": -9.704262131736055
+  },
+  "intent": null,
+  "message": null,
+  "targetPosition": null,
+  "autopilot": true,
+  "status": {
+    "current_action": "idle",
+    "last_error": null,
+    "room": "Bedroom 2",
+    "nearby_objects": [
+      "Kitchen Counter",
+      "Sink",
+      "Chair",
+      "Bed",
+      "Desk",
+      "Desk Chair",
+      "Bed",
+      "Dresser",
+      "Shower",
+      "Bathroom Sink"
+    ],
+    "timestamp": 1777963188527
+  }
+}

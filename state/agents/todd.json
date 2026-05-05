@@ -1,0 +1,30 @@
+{
+  "id": "todd",
+  "name": "Todd",
+  "color": "#e67e22",
+  "position": {
+    "x": 13.25,
+    "y": 0,
+    "z": -0.75
+  },
+  "intent": null,
+  "message": null,
+  "targetPosition": null,
+  "status": {
+    "current_action": "idle",
+    "last_error": null,
+    "room": "Kitchen",
+    "nearby_objects": [
+      "Kitchen Counter",
+      "Sink",
+      "Fridge",
+      "Dining Table",
+      "Chair",
+      "Chair",
+      "Chair",
+      "Chair",
+      "Laptop"
+    ],
+    "timestamp": 1777963188528
+  }
+}

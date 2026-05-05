@@ -1,32 +1,41 @@
 {
-  "agents": [
+  "rooms": [
     {
-      "id": "agent-1",
-      "name": "Alice",
-      "color": "#4a90d9",
-      "position": { "x": 5, "z": -4 },
-      "action": "idle",
-      "room": "Living Room",
-      "status": "Relaxing"
+      "name": "Living Room",
+      "x": 0, "z": 0, "width": 10, "depth": 8,
+      "center": { "x": 5, "z": -4 },
+      "connections": ["Kitchen", "Bedroom 1", "Bedroom 2"]
     },
     {
-      "id": "agent-2",
-      "name": "Bob",
-      "color": "#d94a4a",
-      "position": { "x": 13, "z": -4 },
-      "action": "idle",
-      "room": "Kitchen",
-      "status": "Looking for snacks"
+      "name": "Kitchen",
+      "x": 10, "z": 0, "width": 8, "depth": 8,
+      "center": { "x": 14, "z": -4 },
+      "connections": ["Living Room", "Bedroom 3", "Bathroom"]
     },
     {
-      "id": "agent-3",
-      "name": "Charlie",
-      "color": "#4ad98a",
-      "position": { "x": 2.5, "z": -11 },
-      "action": "idle",
-      "room": "Bedroom 1",
-      "status": "Just woke up"
+      "name": "Bedroom 1",
+      "x": 0, "z": -8, "width": 5.5, "depth": 6,
+      "center": { "x": 2.75, "z": -11 },
+      "connections": ["Living Room"]
+    },
+    {
+      "name": "Bedroom 2",
+      "x": 5.5, "z": -8, "width": 5.5, "depth": 6,
+      "center": { "x": 8.25, "z": -11 },
+      "connections": ["Living Room"]
+    },
+    {
+      "name": "Bedroom 3",
+      "x": 11, "z": -8, "width": 4, "depth": 6,
+      "center": { "x": 13, "z": -11 },
+      "connections": ["Kitchen"]
+    },
+    {
+      "name": "Bathroom",
+      "x": 15, "z": -8, "width": 3, "depth": 6,
+      "center": { "x": 16.5, "z": -11 },
+      "connections": ["Kitchen"]
     }
   ],
-  "lastUpdated": 0
+  "bounds": { "minX": 0, "maxX": 18, "minZ": -14, "maxZ": 0 }
 }

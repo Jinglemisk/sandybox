@@ -434,6 +434,13 @@ canvas { display: block; }
   box-shadow: 0 0 20px var(--plumb-glow);
 }
 
+/* Todd gets a diamond-shaped portrait */
+.agent-portrait[data-agent-id="todd"] .portrait-ring {
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  width: 58px;
+  height: 58px;
+}
+
 /* Sims-style avatar head rendering */
 .portrait-head {
   width: 32px; height: 32px;

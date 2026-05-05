@@ -66,12 +66,7 @@ scene.add(furnitureGroup);
 // ── State & Agents ─────────────────────────────────────
 
 const stateManager = new StateManager();
-const simulation = new Simulation(stateManager, furnitureItems);
-
-// Add agent meshes to scene
-for (const agent of simulation.agents) {
-  scene.add(agent.character.group);
-}
+const simulation = new Simulation(stateManager, furnitureItems, scene);
 
 // ── UI ─────────────────────────────────────────────────
 
@@ -117,13 +112,12 @@ document.querySelectorAll('#speed-controls button').forEach((btn) => {
 // ── Game Loop ──────────────────────────────────────────
 
 let lastTime = performance.now();
-let saveTimer = 0;
 
 function animate() {
   requestAnimationFrame(animate);
 
   const now = performance.now();
-  const dt = Math.min((now - lastTime) / 1000, 0.1); // Cap at 100ms
+  const dt = Math.min((now - lastTime) / 1000, 0.1);
   lastTime = now;
 
   // Update simulation
@@ -139,13 +133,6 @@ function animate() {
   activityLog.update(stateManager.getActionLog());
   speechBubbles.update(simulation.agents);
 
-  // Periodically save state
-  saveTimer += dt;
-  if (saveTimer > 5) {
-    saveTimer = 0;
-    stateManager.saveState();
-  }
-
   // Render
   renderer.render(scene, simsCamera.camera);
 }
@@ -159,16 +146,6 @@ window.addEventListener('resize', () => {
 
 // ── Start ──────────────────────────────────────────────
 
-// Add initial log entries
 stateManager.addActionEntry('system', 'System', 'action', 'Sandbox world initialized');
-for (const agent of simulation.agents) {
-  stateManager.addActionEntry(
-    agent.state.id,
-    agent.state.name,
-    'action',
-    `appears in ${agent.state.room}`
-  );
-}
-
 animate();
-console.log('sandybox initialized');
+console.log('sandybox initialized — polling agent state files');

@@ -1,56 +1,32 @@
-import type { WorldState, ChatLog, ActionLog, AgentState, ChatMessage, ActionEntry } from './types';
+import type { AgentFileState, ChatLog, ActionLog, ChatMessage, ActionEntry } from './types';
 
-// Default initial state
-const DEFAULT_AGENTS: AgentState[] = [
-  {
-    id: 'agent-1',
-    name: 'Alice',
-    color: '#4a90d9',
-    position: { x: 5, z: -4 },
-    action: 'idle',
-    room: 'Living Room',
-    status: 'Relaxing',
-  },
-  {
-    id: 'agent-2',
-    name: 'Bob',
-    color: '#d94a4a',
-    position: { x: 13, z: -4 },
-    action: 'idle',
-    room: 'Kitchen',
-    status: 'Looking for snacks',
-  },
-  {
-    id: 'agent-3',
-    name: 'Charlie',
-    color: '#4ad98a',
-    position: { x: 3, z: -11 },
-    action: 'idle',
-    room: 'Bedroom 1',
-    status: 'Just woke up',
-  },
-];
-
+/**
+ * StateManager — polls agent state files via the Vite API plugin.
+ *
+ * Flow:
+ * - Polls GET /api/state/agents every N ms to discover and read all agent files
+ * - The renderer reads intent/targetPosition from each agent's file
+ * - The renderer writes back position/status via PUT /api/state/agents/:id
+ * - Chat messages are appended via POST /api/state/chat
+ */
 export class StateManager {
-  private worldState: WorldState;
-  private chatLog: ChatLog;
-  private actionLog: ActionLog;
-  private stateDir: string;
+  private agentStates: Map<string, AgentFileState> = new Map();
+  private chatLog: ChatLog = { messages: [] };
+  private actionLog: ActionLog = { entries: [] };
   private pollInterval: number | null = null;
-  private onStateChange: (() => void) | null = null;
+  private onAgentsChanged: ((agents: AgentFileState[]) => void) | null = null;
+  private knownAgentIds: Set<string> = new Set();
 
-  constructor(stateDir: string = '/vibespace/project/state') {
-    this.stateDir = stateDir;
-    this.worldState = {
-      agents: DEFAULT_AGENTS,
-      lastUpdated: Date.now(),
-    };
-    this.chatLog = { messages: [] };
-    this.actionLog = { entries: [] };
+  constructor() {}
+
+  /** Get all current agent file states */
+  getAgentFileStates(): AgentFileState[] {
+    return Array.from(this.agentStates.values());
   }
 
-  getAgents(): AgentState[] {
-    return this.worldState.agents;
+  /** Get a specific agent's file state */
+  getAgentFileState(id: string): AgentFileState | undefined {
+    return this.agentStates.get(id);
   }
 
   getChatMessages(): ChatMessage[] {
@@ -71,12 +47,17 @@ export class StateManager {
     };
     this.chatLog.messages.push(entry);
 
-    // Keep last 100 messages
     if (this.chatLog.messages.length > 100) {
       this.chatLog.messages = this.chatLog.messages.slice(-100);
     }
 
-    // Also add to action log
+    // Persist to chat.json via API
+    fetch('/api/state/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(entry),
+    }).catch(() => {});
+
     this.addActionEntry(agentId, agentName, 'chat', `says: "${message}"`);
   }
 
@@ -91,61 +72,100 @@ export class StateManager {
     };
     this.actionLog.entries.push(entry);
 
-    // Keep last 200 entries
     if (this.actionLog.entries.length > 200) {
       this.actionLog.entries = this.actionLog.entries.slice(-200);
     }
   }
 
-  updateAgentState(agentId: string, updates: Partial<AgentState>) {
-    const agent = this.worldState.agents.find(a => a.id === agentId);
-    if (agent) {
-      Object.assign(agent, updates);
-      this.worldState.lastUpdated = Date.now();
-    }
-  }
-
-  // Save state to JSON files (for external agent coordination)
-  async saveState() {
+  /**
+   * Write renderer-owned fields back to an agent's state file.
+   * Preserves agent-written fields (intent, message, targetPosition).
+   */
+  async writeRendererState(agentId: string, updates: Partial<AgentFileState>) {
     try {
-      const response = await fetch('/api/state', {
-        method: 'POST',
+      await fetch(`/api/state/agents/${agentId}`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          world: this.worldState,
-          chat: this.chatLog,
-          actions: this.actionLog,
-        }),
+        body: JSON.stringify(updates),
       });
-      if (!response.ok) {
-        console.warn('Failed to save state to server, using local state only');
-      }
     } catch {
-      // Server not available, just use local state
+      // API not available, skip
     }
   }
 
-  // Load state from JSON files
-  async loadState() {
+  /**
+   * Clear an agent's intent after it has been processed.
+   */
+  async clearIntent(agentId: string) {
+    await this.writeRendererState(agentId, {
+      intent: null,
+      message: null,
+      targetPosition: null,
+    } as any);
+    // Also update local cache
+    const agent = this.agentStates.get(agentId);
+    if (agent) {
+      agent.intent = null;
+      agent.message = null;
+      agent.targetPosition = null;
+    }
+  }
+
+  /** Poll agent files from the API */
+  private async pollAgents() {
     try {
-      const response = await fetch('/api/state');
-      if (response.ok) {
-        const data = await response.json();
-        if (data.world) this.worldState = data.world;
-        if (data.chat) this.chatLog = data.chat;
-        if (data.actions) this.actionLog = data.actions;
+      const res = await fetch('/api/state/agents');
+      if (!res.ok) return;
+      const agents: AgentFileState[] = await res.json();
+
+      // Detect new agents
+      const currentIds = new Set(agents.map(a => a.id));
+      const newAgents: AgentFileState[] = [];
+
+      for (const agent of agents) {
+        this.agentStates.set(agent.id, agent);
+        if (!this.knownAgentIds.has(agent.id)) {
+          newAgents.push(agent);
+          this.knownAgentIds.add(agent.id);
+        }
+      }
+
+      // Remove agents whose files were deleted
+      for (const knownId of this.knownAgentIds) {
+        if (!currentIds.has(knownId)) {
+          this.agentStates.delete(knownId);
+          this.knownAgentIds.delete(knownId);
+        }
+      }
+
+      if (newAgents.length > 0 || agents.length !== this.knownAgentIds.size) {
+        this.onAgentsChanged?.(agents);
       }
     } catch {
-      // Server not available, use defaults
+      // API not available
     }
   }
 
-  // Start polling for state changes
-  startPolling(intervalMs: number = 2000, onChange?: () => void) {
-    this.onStateChange = onChange ?? null;
-    this.pollInterval = window.setInterval(async () => {
-      await this.loadState();
-      this.onStateChange?.();
+  /** Also poll chat.json to pick up messages from external agents */
+  private async pollChat() {
+    try {
+      const res = await fetch('/api/state/chat');
+      if (!res.ok) return;
+      const chat: ChatLog = await res.json();
+      this.chatLog = chat;
+    } catch {}
+  }
+
+  /** Start polling for agent state changes */
+  startPolling(intervalMs: number = 300, onAgentsChanged?: (agents: AgentFileState[]) => void) {
+    this.onAgentsChanged = onAgentsChanged ?? null;
+
+    // Initial load
+    this.pollAgents();
+
+    this.pollInterval = window.setInterval(() => {
+      this.pollAgents();
+      this.pollChat();
     }, intervalMs);
   }
 
@@ -154,5 +174,26 @@ export class StateManager {
       clearInterval(this.pollInterval);
       this.pollInterval = null;
     }
+  }
+
+  // Legacy compatibility — used by DebugPanel
+  getAgents() {
+    return this.getAgentFileStates().map(a => ({
+      id: a.id,
+      name: a.name,
+      color: a.color,
+      position: { x: a.position.x, z: a.position.z },
+      action: a.status.current_action,
+      room: a.status.room,
+      status: a.status.current_action,
+    }));
+  }
+
+  updateAgentState(_agentId: string, _updates: any) {
+    // No-op for legacy — state is now file-driven
+  }
+
+  saveState() {
+    // No-op — state is persisted per-agent via API
   }
 }

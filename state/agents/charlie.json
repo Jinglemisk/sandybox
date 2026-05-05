@@ -1,0 +1,28 @@
+{
+  "id": "charlie",
+  "name": "Charlie",
+  "color": "#4ad98a",
+  "position": {
+    "x": 16.664635129997105,
+    "y": 0,
+    "z": -12.154177933421753
+  },
+  "intent": null,
+  "message": null,
+  "targetPosition": null,
+  "autopilot": true,
+  "status": {
+    "current_action": "using",
+    "last_error": null,
+    "room": "Bathroom",
+    "nearby_objects": [
+      "Stove",
+      "Bed",
+      "Dresser",
+      "Toilet",
+      "Shower",
+      "Bathroom Sink"
+    ],
+    "timestamp": 1777963188528
+  }
+}

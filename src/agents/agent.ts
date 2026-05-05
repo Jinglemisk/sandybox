@@ -1,19 +1,19 @@
 import * as THREE from 'three';
 import { Character } from './character';
 import { findPath, getRoomAt, getRandomPositionInRoom } from './navigation';
-import type { AgentState } from '../state/types';
+import type { AgentFileState } from '../state/types';
 import type { FurnitureItem } from '../world/furniture';
 
 export type AgentAction = 'idle' | 'walking' | 'sitting' | 'using' | 'chatting';
 
 export class Agent {
   character: Character;
-  state: AgentState;
+  state: AgentFileState;
 
   // Movement
   private path: THREE.Vector3[] = [];
   private pathIndex = 0;
-  private moveSpeed = 2.5; // units per second
+  private moveSpeed = 2.5;
 
   // Current action
   action: AgentAction = 'idle';
@@ -24,13 +24,16 @@ export class Agent {
   currentMessage: string | null = null;
   messageTimer = 0;
 
-  constructor(state: AgentState) {
-    this.state = state;
-    this.character = new Character(state.name, parseInt(state.color.replace('#', '0x')));
-    this.character.setPosition(state.position.x, state.position.z);
+  // Pending interaction
+  private pendingInteraction: FurnitureItem | null = null;
+
+  constructor(fileState: AgentFileState) {
+    this.state = fileState;
+    this.character = new Character(fileState.name, parseInt(fileState.color.replace('#', '0x')));
+    this.character.setPosition(fileState.position.x, fileState.position.z);
   }
 
-  // Set a new target to walk to
+  /** Walk to a specific world position */
   walkTo(x: number, z: number) {
     const pos = this.character.group.position;
     this.path = findPath(pos.x, pos.z, x, z);
@@ -40,7 +43,7 @@ export class Agent {
     }
   }
 
-  // Walk to a random position in a specific room
+  /** Walk to a random position in a room */
   walkToRoom(roomName: string) {
     const target = getRandomPositionInRoom(roomName);
     if (target) {
@@ -48,26 +51,23 @@ export class Agent {
     }
   }
 
-  // Start interacting with furniture
+  /** Start interacting with furniture */
   interactWith(item: FurnitureItem) {
     const pos = item.interactionPoint;
     this.walkTo(pos.x, pos.z);
-    // After arriving, the update loop will set the appropriate action
     this.pendingInteraction = item;
   }
 
-  private pendingInteraction: FurnitureItem | null = null;
-
-  // Say something (speech bubble)
+  /** Say something (speech bubble) */
   say(message: string) {
     this.currentMessage = message;
-    this.messageTimer = 5; // Show for 5 seconds
+    this.messageTimer = 5;
     this.action = 'chatting';
     this.actionTimer = 0;
     this.actionDuration = 3;
   }
 
-  // Perform a timed action
+  /** Perform a timed action */
   doAction(actionType: AgentAction, duration: number) {
     this.action = actionType;
     this.actionTimer = 0;
@@ -96,11 +96,9 @@ export class Agent {
       if (dist < 0.15) {
         this.pathIndex++;
         if (this.pathIndex >= this.path.length) {
-          // Arrived
           this.action = 'idle';
           this.path = [];
 
-          // Handle pending interaction
           if (this.pendingInteraction) {
             if (this.pendingInteraction.interactionType === 'sit') {
               this.doAction('sitting', 10 + Math.random() * 20);
@@ -111,14 +109,12 @@ export class Agent {
           }
         }
       } else {
-        // Move toward target
         const speed = this.moveSpeed * adt;
         const moveX = (dx / dist) * Math.min(speed, dist);
         const moveZ = (dz / dist) * Math.min(speed, dist);
         pos.x += moveX;
         pos.z += moveZ;
 
-        // Face movement direction
         this.character.setRotation(Math.atan2(dx, dz));
         this.character.animateWalk(adt, 1);
       }
@@ -135,17 +131,16 @@ export class Agent {
         this.action = 'idle';
       }
     } else {
-      // Idle
       this.character.animateIdle(adt);
     }
 
     this.character.update(adt);
 
-    // Update state for JSON sync
+    // Sync position back to file state
     this.state.position.x = this.character.group.position.x;
     this.state.position.z = this.character.group.position.z;
-    this.state.action = this.action;
+    this.state.status.current_action = this.action;
     const room = getRoomAt(this.state.position.x, this.state.position.z);
-    this.state.room = room?.name ?? 'Outside';
+    this.state.status.room = room?.name ?? 'Outside';
   }
 }

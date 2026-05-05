@@ -80,6 +80,9 @@ export class DebugPanel {
     this.buildBar();
     this.updateInterval = window.setInterval(() => this.updateStatus(), 400);
 
+    // Rebuild bar when new agents are dynamically spawned
+    this.simulation.onAgentSpawned = () => this.buildBar();
+
     // Close menus when clicking on the 3D viewport
     document.addEventListener('mousedown', (e) => {
       if (!(e.target as HTMLElement).closest('#agent-bar')) {

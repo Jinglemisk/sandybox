@@ -1,0 +1,33 @@
+{
+  "id": "bob",
+  "name": "Bob",
+  "color": "#d94a4a",
+  "position": {
+    "x": 17.101572874213886,
+    "y": 0,
+    "z": -4.7693714071669335
+  },
+  "intent": null,
+  "message": null,
+  "targetPosition": null,
+  "autopilot": true,
+  "status": {
+    "current_action": "idle",
+    "last_error": null,
+    "room": "Kitchen",
+    "nearby_objects": [
+      "Kitchen Counter",
+      "Stove",
+      "Sink",
+      "Fridge",
+      "Dining Table",
+      "Chair",
+      "Chair",
+      "Chair",
+      "Chair",
+      "Shower",
+      "Laptop"
+    ],
+    "timestamp": 1777963188527
+  }
+}
